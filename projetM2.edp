@@ -1,0 +1,86 @@
+// Définition du maillage
+real xmax = 3, ymax = 3, y1 = 0.75, y2 = 2.5;
+
+
+// Définir les sous-domaines avec une fonction logique
+func K = (y < y1) * 0.5 + (y >= y1 && y < y2) * 1.0 + (y >= y2) * 0.1;
+
+// Conditions aux limites
+real Htop = 1, Hright = 0.667;
+border top(t = xmax, 0) {x = t; y = ymax; }
+border left(t = ymax, 0){x = 0; y = t;}
+border bottom(t = 0, xmax) {x = t; y = 0;}
+border right1(t = 0, y1) { x = xmax; y = t ; }  // Partie où H = Hright
+border right2(t = y1, ymax) { x = xmax; y = t ;  }  // Partie où H = 0
+
+
+int n=8;  // unite du nombre de noeuds
+
+// maillage du domaine avec n noeuds
+
+mesh Th=buildmesh( top(2*n)+left(n)+bottom(4*n)+right1(2*n)+right2(2*n) );
+
+plot(Th,wait=1,fill=1,ps="grille.eps");
+
+// Espace fonctionnel
+fespace Vh(Th, P1); // Fonctions P1
+Vh H, v, ux, uy; 
+
+// H pour la charge hydraulique, ux et uy pour les
+//composantes de vitesse
+
+// Formulation variationnelle
+problem Darcy(H, v) =
+     int2d(Th)(K * (dx(H) * dx(v) + dy(H) * dy(v))) // Terme principal
+   + on(top, H = Htop) + on(right1, H = Hright)
+
+   ;
+
+// Résolution
+Darcy;
+
+// Calcul du champ de vitesse
+ux = -K * dx(H);
+uy = -K * dy(H);
+
+// Visualisation
+
+plot(H, fill = true, value = true, cmm = "Charge hydraulique H", wait=1);
+plot(ux, fill = true, value = true, cmm = "Vitesse u_x",wait=1);
+plot(uy, fill = true, value = true, cmm = "Vitesse u_y",wait=1);
+
+plot([ux,uy],wait=1);
+
+
+// partie pollution rezaï
+
+// Définir les sous-domaines avec une fonction logique
+
+func nu = (y < y1) * 0.01 + (y >= y1 && y < y2) * 0.1 + (y >= y2) * 0.01;
+
+// Equation Advection diffusion polluant phi
+
+real dt = 0.05, t=0., Tfinal=45;
+real xs=xmax/2, ys=(y2+y1)/2;
+
+func initphi = exp(-20*((x-xs)*(x-xs)+(y-ys)*(y-ys)));
+  Vh phi, vh, phin;
+
+   problem advection(phi,vh)=
+      int2d(Th)( dt*nu* dx(phi)*dx(vh) + dt*nu*dy(phi)*dy(vh) )
+      + int2d(Th)( phi*vh)
+      - int2d(Th)( phin*vh)
+      + int2d(Th)( dt*(ux*dx(phi) + uy*dy(phi))*vh);
+
+phin=initphi;
+real[int] colorhsv=[3./4.,1,1, 0.,1,1]; // en hsv
+
+while (t<Tfinal)
+   {
+     advection;
+     plot(phi,fill=1,nbiso=30,value=1,hsv=colorhsv);
+
+    phin=phi;
+    t=t+dt;
+}
+  plot(phi,fill=1,nbiso=40,value=1,hsv=colorhsv);
