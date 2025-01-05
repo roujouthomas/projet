@@ -8,7 +8,7 @@ Created on Fri Nov 22 18:22:10 2024
 import pandas as pd
 import numpy as np
 
-# Exemple 
+
 data = pd.DataFrame({
     'fico_score': [450, 500, 550, 600, 650, 700, 750, 800, 850],
     'default': [1, 1, 0, 1, 0, 0, 0, 0, 0]
