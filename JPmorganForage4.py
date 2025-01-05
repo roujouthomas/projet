@@ -15,7 +15,7 @@ data = pd.DataFrame({
 })
 
 
-#real data
+
 data = pd.read_csv("/Users/thomasroujou/Desktop/Task 3 and 4_loan_Data.csv")
 
 
