@@ -23,12 +23,12 @@ data = data[["fico_score", "default"]].dropna()
 
 
     
-#we create 5 buckets
+
 data['bucket']= pd.cut(data['fico_score'], bins=5, labels=range(1, 5 + 1), include_lowest=True)
 
 
 def calculate_mse(scores):
-    """Calcule l'erreur quadratique moyenne pour un ensemble de scores."""
+   #Calcule l'erreur quadratique moyenne pour un ensemble de scores.
     mean_score = scores.mean()
     mse = ((scores - mean_score) ** 2).sum()
     return mse
@@ -40,7 +40,7 @@ bucket_stats = data.groupby('bucket').agg(
     mse_fico=('fico_score', calculate_mse)
 )
 
-#default rate and log_likehood
+
 bucket_stats['default_rate'] = bucket_stats['total_defaults'] / bucket_stats['total_records']
 bucket_stats['log_likelihood'] = bucket_stats.apply(
     lambda row: row['total_defaults'] * np.log(row['default_rate'] + 1e-9) +
