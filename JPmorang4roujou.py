@@ -22,6 +22,7 @@ data = pd.read_csv("/Users/thomasroujou/Desktop/Task 3 and 4_loan_Data.csv")
 data = data[["fico_score", "default"]].dropna()  
 
 
+
     
 
 data['bucket']= pd.cut(data['fico_score'], bins=5, labels=range(1, 5 + 1), include_lowest=True)
