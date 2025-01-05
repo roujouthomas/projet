@@ -47,17 +47,7 @@ print(f"AUC : {roc_auc_score(y_test, y_proba):.2f}")
 
 
 def perte_attendue(caracteristiques, modele, taux_recouvrement=0.1):
-    """
-    Calcule la perte attendue pour un prêt.
 
-    Arguments :
-    - caracteristiques : dict, caractéristiques du prêt (ex. montant du prêt, revenus, etc.)
-    - modele : modèle entraîné pour prédire la probabilité de défaut
-    - taux_recouvrement : float, taux de recouvrement (10 % par défaut)
-
-    Retourne :
-    - perte attendue : float
-    """
     df_caracteristiques = pd.DataFrame([caracteristiques])
     proba_defaut = modele.predict_proba(df_caracteristiques)[:, 1][0]
     montant_pret = caracteristiques["loan_amt_outstanding"]
